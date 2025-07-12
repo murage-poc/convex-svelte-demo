@@ -1,4 +1,5 @@
-import { query } from "./_generated/server";
+import {mutation, query} from "./_generated/server";
+import {v} from "convex/values";
 
 export const index = query({
     args:{},
@@ -22,3 +23,19 @@ export const show = query({
         
     }
 });
+
+
+const CreateRequest = {
+    title: v.string(),
+    description: v.optional(v.string()),
+    status: v.union(v.literal('PENDING'),v.literal('COMPLETE'),v.literal('ABANDONED'),),
+}
+export const create =mutation({
+    args:  CreateRequest ,
+    handler: async (ctx, data)=>{
+
+        const author = await ctx.db.query('users').first();
+
+        return await ctx.db.insert('tasks',{...data, authorId:author!._id})
+    }
+})
